@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+  "strings"
 	"os/exec"
 	"os/user"
 	"path/filepath"
@@ -130,11 +131,22 @@ func createInboxDirIfNotExists(c Opts) {
 }
 
 func createFileName(c Opts) string {
-  return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION 
-}
+  title := flag.Args()
+  if len(title) == 0 {
+    return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION 
+  } else {
+    return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
+  }
+} 
 
 func defaultTextString() string {
-	return fmt.Sprintf("# \n _(%s)_", getDate())
+  title := flag.Args()
+  if len(title) == 0 {
+    return fmt.Sprintf("# \n _(%s)_", getDate())
+  } else {
+    return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
+  }
+
 }
 
 // ==========================
