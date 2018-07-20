@@ -3,43 +3,43 @@ package main
 import (
 	"encoding/json"
 	"errors"
-  "strconv"
 	"fmt"
 	"io/ioutil"
 	"os"
-  "strings"
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 )
 
 const (
-  DEFAULT_EXTENSION = ".md"
+	DEFAULT_EXTENSION = ".md"
 )
 
 func main() {
-  config := readConfigFile()
+	config := readConfigFile()
 
-  createNewNote(config) 
+	createNewNote(config)
 }
 
 // ==========================
 // Creating a new note.
 
 func createNewNote(config Opts) {
-  fileName := createFileName(config)
-  prefabbedContent := defaultTextString()
-  createInboxDirIfNotExists(config)
+	fileName := createFileName(config)
+	prefabbedContent := defaultTextString()
+	createInboxDirIfNotExists(config)
 
-  err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
-  check(err)
+	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
+	check(err)
 
-  err = launchEditor(fileName)
-  check(err)
+	err = launchEditor(fileName)
+	check(err)
 
-  config.Counter += 1
-  writeConfig(config)
+	config.Counter += 1
+	writeConfig(config)
 }
 
 func getEditor() (string, error) {
@@ -53,8 +53,8 @@ func getEditor() (string, error) {
 }
 
 func launchEditor(filename string) error {
-  editorPath, err := getEditor()
-  check(err)
+	editorPath, err := getEditor()
+	check(err)
 
 	cmdArgs := append([]string{"--"}, filename)
 	cmd := exec.Command(editorPath, cmdArgs...)
@@ -66,25 +66,25 @@ func launchEditor(filename string) error {
 }
 
 func createInboxDirIfNotExists(c Opts) {
-  os.MkdirAll(c.InboxPath, os.ModePerm)
+	os.MkdirAll(c.InboxPath, os.ModePerm)
 }
 
 func createFileName(c Opts) string {
-  title := os.Args[1:]
-  if len(title) == 0 {
-    return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION 
-  } else {
-    return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
-  }
-} 
+	title := os.Args[1:]
+	if len(title) == 0 {
+		return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION
+	} else {
+		return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
+	}
+}
 
 func defaultTextString() string {
-  title := os.Args[1:]
-  if len(title) == 0 {
-    return fmt.Sprintf("# \n _(%s)_", getDate())
-  } else {
-    return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
-  }
+	title := os.Args[1:]
+	if len(title) == 0 {
+		return fmt.Sprintf("# \n _(%s)_", getDate())
+	} else {
+		return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
+	}
 
 }
 
@@ -93,14 +93,14 @@ func defaultTextString() string {
 
 type Opts struct {
 	InboxPath string
-	Counter  int
+	Counter   int
 }
 
 func checkForConfig() {
 	config := getConfigPath()
 	_, err := os.Stat(config)
 	if os.IsNotExist(err) {
-    defaultInbox := getHomeDir() + "/newNotes/"
+		defaultInbox := getHomeDir() + "/newNotes/"
 		defaultOpts := Opts{InboxPath: defaultInbox, Counter: 0}
 
 		j, err := json.MarshalIndent(defaultOpts, "", "  ")
@@ -125,12 +125,12 @@ func readConfigFile() Opts {
 }
 
 func writeConfig(opts Opts) {
-  config := getConfigPath()
-  j, err := json.MarshalIndent(opts, "", "  ")
-  check(err)
+	config := getConfigPath()
+	j, err := json.MarshalIndent(opts, "", "  ")
+	check(err)
 
-  err = ioutil.WriteFile(config, j, 0644)
-  check(err)
+	err = ioutil.WriteFile(config, j, 0644)
+	check(err)
 }
 
 // ==========================
