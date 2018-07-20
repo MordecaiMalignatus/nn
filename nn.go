@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"errors"
-	"flag"
   "strconv"
 	"fmt"
 	"io/ioutil"
@@ -20,24 +19,73 @@ const (
 )
 
 func main() {
-  flags := parseFlags()
   config := readConfigFile()
 
-  createNewNote(config, flags) 
+  createNewNote(config) 
 }
 
 // ==========================
-// Handling Flags
+// Creating a new note.
 
-func parseFlags() Flags {
-	filename := flag.String("f", getDate(), "Manually set the filename for a newly created card")
-	flag.Parse()
+func createNewNote(config Opts) {
+  fileName := createFileName(config)
+  prefabbedContent := defaultTextString()
+  createInboxDirIfNotExists(config)
 
-	return Flags{*filename}
+  err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
+  check(err)
+
+  err = launchEditor(fileName)
+  check(err)
+
+  config.Counter += 1
+  writeConfig(config)
 }
 
-type Flags struct {
-	filepath string
+func getEditor() (string, error) {
+	editor := os.Getenv("EDITOR")
+
+	if editor != "" {
+		return editor, nil
+	} else {
+		return "", errors.New("EDITOR not set.")
+	}
+}
+
+func launchEditor(filename string) error {
+  editorPath, err := getEditor()
+  check(err)
+
+	cmdArgs := append([]string{"--"}, filename)
+	cmd := exec.Command(editorPath, cmdArgs...)
+	cmd.Stdout = os.Stdout
+	cmd.Stdin = os.Stdin
+	cmd.Run()
+
+	return nil
+}
+
+func createInboxDirIfNotExists(c Opts) {
+  os.MkdirAll(c.InboxPath, os.ModePerm)
+}
+
+func createFileName(c Opts) string {
+  title := os.Args[1:]
+  if len(title) == 0 {
+    return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION 
+  } else {
+    return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
+  }
+} 
+
+func defaultTextString() string {
+  title := os.Args[1:]
+  if len(title) == 0 {
+    return fmt.Sprintf("# \n _(%s)_", getDate())
+  } else {
+    return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
+  }
+
 }
 
 // ==========================
@@ -83,70 +131,6 @@ func writeConfig(opts Opts) {
 
   err = ioutil.WriteFile(config, j, 0644)
   check(err)
-}
-
-// ==========================
-// Creating a new note.
-
-func createNewNote(config Opts, flags Flags) {
-  fileName := createFileName(config)
-  prefabbedContent := defaultTextString()
-  createInboxDirIfNotExists(config)
-
-  err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
-  check(err)
-
-  err = launchEditor(fileName)
-  check(err)
-
-  config.Counter += 1
-  writeConfig(config)
-}
-
-func getEditor() (string, error) {
-	editor := os.Getenv("EDITOR")
-
-	if editor != "" {
-		return editor, nil
-	} else {
-		return "", errors.New("EDITOR not set.")
-	}
-}
-
-func launchEditor(filename string) error {
-  editorPath, err := getEditor()
-  check(err)
-
-	cmdArgs := append([]string{"--"}, filename)
-	cmd := exec.Command(editorPath, cmdArgs...)
-	cmd.Stdout = os.Stdout
-	cmd.Stdin = os.Stdin
-	cmd.Run()
-
-	return nil
-}
-
-func createInboxDirIfNotExists(c Opts) {
-  os.MkdirAll(c.InboxPath, os.ModePerm)
-}
-
-func createFileName(c Opts) string {
-  title := flag.Args()
-  if len(title) == 0 {
-    return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION 
-  } else {
-    return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
-  }
-} 
-
-func defaultTextString() string {
-  title := flag.Args()
-  if len(title) == 0 {
-    return fmt.Sprintf("# \n _(%s)_", getDate())
-  } else {
-    return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
-  }
-
 }
 
 // ==========================
