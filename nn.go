@@ -90,6 +90,7 @@ func writeConfig(opts Opts) {
 func createNewNote(config Opts, flags Flags) {
   fileName := createFileName(config)
   prefabbedContent := defaultTextString()
+  createInboxDirIfNotExists(config)
 
   err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
   check(err)
