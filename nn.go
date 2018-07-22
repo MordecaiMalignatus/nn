@@ -38,8 +38,15 @@ func createNewNote(config Opts) {
 	err = launchEditor(fileName)
 	check(err)
 
-	config.Counter += 1
-	writeConfig(config)
+	if noteWasChanged(fileName) {
+		fmt.Println("Saving as " + fileName)
+		config.Counter += 1
+		writeConfig(config)
+	} else {
+		fmt.Println("Nothing was changed, discarding note...")
+		err := os.Remove(fileName)
+		check(err)
+	}
 }
 
 func getEditor() (string, error) {
@@ -63,6 +70,14 @@ func launchEditor(filename string) error {
 	cmd.Run()
 
 	return nil
+}
+
+func noteWasChanged(fileName string) bool {
+	dat, err := ioutil.ReadFile(fileName)
+	check(err)
+	currentString := string(dat)
+
+	return currentString != defaultTextString()
 }
 
 func createInboxDirIfNotExists(c Opts) {
@@ -101,7 +116,7 @@ func checkForConfig() {
 	_, err := os.Stat(config)
 	if os.IsNotExist(err) {
 		fmt.Println("Generating config file in ~/.config/nn...")
-		fmt.Println("Default Inbox is ~/newNotes/, change in Config if desired.")
+		fmt.Println("Default Inbox is ~/newNotes/, change in config if desired.")
 
 		defaultInbox := getHomeDir() + "/newNotes/"
 		defaultOpts := Opts{InboxPath: defaultInbox, Counter: 0}
