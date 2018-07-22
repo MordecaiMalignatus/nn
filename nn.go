@@ -100,6 +100,9 @@ func checkForConfig() {
 	config := getConfigPath()
 	_, err := os.Stat(config)
 	if os.IsNotExist(err) {
+		fmt.Println("Generating config file in ~/.config/nn...")
+		fmt.Println("Default Inbox is ~/newNotes/, change in Config if desired.")
+
 		defaultInbox := getHomeDir() + "/newNotes/"
 		defaultOpts := Opts{InboxPath: defaultInbox, Counter: 0}
 
