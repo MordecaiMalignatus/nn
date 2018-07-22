@@ -24,7 +24,7 @@ func main() {
 	os.MkdirAll(config.InboxPath, os.ModePerm)
 
 	if usedInPipe() {
-		fmt.Println("In, pipe, gathering from STDIN")
+		fmt.Println("Reading from Stdin...")
 		createNoteFromStdin(fileName)
 	} else {
 		createNoteWithEditor(fileName)
