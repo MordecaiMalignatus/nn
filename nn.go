@@ -20,23 +20,15 @@ const (
 
 func main() {
 	config := readConfigFile()
-
-	createNewNote(config)
-}
-
-// ==========================
-// Creating a new note.
-
-func createNewNote(config Opts) {
 	fileName := createFileName(config)
-	prefabbedContent := defaultTextString()
-  os.MkdirAll(config.InboxPath, os.ModePerm)
+	os.MkdirAll(config.InboxPath, os.ModePerm)
 
-	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
-	check(err)
-
-	err = launchEditor(fileName)
-	check(err)
+	if usedInPipe() {
+		fmt.Println("In, pipe, gathering from STDIN")
+		createNoteFromStdin(fileName)
+	} else {
+		createNoteWithEditor(fileName)
+	}
 
 	if noteWasChanged(fileName) {
 		fmt.Println("Saving as " + fileName)
@@ -47,6 +39,19 @@ func createNewNote(config Opts) {
 		err := os.Remove(fileName)
 		check(err)
 	}
+}
+
+// ==========================
+// Creating a new note with $EDITOR.
+
+func createNoteWithEditor(fileName string) {
+	prefabbedContent := defaultTextString()
+
+	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), os.ModePerm)
+	check(err)
+
+	err = launchEditor(fileName)
+	check(err)
 }
 
 func getEditor() (string, error) {
@@ -94,9 +99,25 @@ func defaultTextString() string {
 	if len(title) == 0 {
 		return fmt.Sprintf("# \n _(%s)_", getDate())
 	} else {
-		return fmt.Sprintf("# %s\n _(%s)", strings.Join(title, " "), getDate())
+		return fmt.Sprintf("# %s\n _(%s)_", strings.Join(title, " "), getDate())
 	}
+}
 
+// ==========================
+// Creating a note from STDIN
+
+func createNoteFromStdin(filename string) {
+	dat, err := ioutil.ReadAll(os.Stdin)
+
+	err = ioutil.WriteFile(filename, dat, os.ModePerm)
+	check(err)
+}
+
+func usedInPipe() bool {
+	f, err := os.Stdin.Stat()
+	check(err)
+
+	return f.Size() > 0
 }
 
 // ==========================
