@@ -8,6 +8,9 @@ The file's name is simply an incrementing number.
 Alternatively, call `nn foo bar baz` and you get a file named `foo-bar-baz.md`,
 and a filled-in title row. 
 
+If you do not change anything in the file opened, NN will delete the file to
+avoid spamming your inbox with stuff you accidentally triggered.
+
 ## Configuration
 
 There's a config file at `~/.config/nn`, which is simple JSON, specifying the
