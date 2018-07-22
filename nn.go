@@ -30,7 +30,7 @@ func main() {
 func createNewNote(config Opts) {
 	fileName := createFileName(config)
 	prefabbedContent := defaultTextString()
-	createInboxDirIfNotExists(config)
+  os.MkdirAll(config.InboxPath, os.ModePerm)
 
 	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
 	check(err)
@@ -78,10 +78,6 @@ func noteWasChanged(fileName string) bool {
 	currentString := string(dat)
 
 	return currentString != defaultTextString()
-}
-
-func createInboxDirIfNotExists(c Opts) {
-	os.MkdirAll(c.InboxPath, os.ModePerm)
 }
 
 func createFileName(c Opts) string {
