@@ -47,7 +47,7 @@ func main() {
 func createNoteWithEditor(fileName string) {
 	prefabbedContent := defaultTextString()
 
-	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), os.ModePerm)
+	err := ioutil.WriteFile(fileName, []byte(prefabbedContent), 0644)
 	check(err)
 
 	err = launchEditor(fileName)
@@ -109,7 +109,7 @@ func defaultTextString() string {
 func createNoteFromStdin(filename string) {
 	dat, err := ioutil.ReadAll(os.Stdin)
 
-	err = ioutil.WriteFile(filename, dat, os.ModePerm)
+	err = ioutil.WriteFile(filename, dat, 0644)
 	check(err)
 }
 
