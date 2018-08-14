@@ -14,6 +14,9 @@ Giving `NN` args will change the naming of your file from an incrementing
 number to the args you gave it. Call `nn foo bar baz` and you get a file named
 `foo-bar-baz.md`
 
+Alternatively, you can edit the title line (The `# ` bit in the first line),
+and it will get extracted and used no matter what you called `nn` with. 
+
 ### Pipes
 
 As means to take a look at outputs later, NN supports pipes: `echo "hello!" |

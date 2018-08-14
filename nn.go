@@ -20,7 +20,7 @@ const (
 
 func main() {
 	config := readConfigFile()
-	fileName := createFileName(config)
+	fileName := createFileNameFromArgs(config)
 	os.MkdirAll(config.InboxPath, os.ModePerm)
 
 	if usedInPipe() {
@@ -30,8 +30,19 @@ func main() {
 		createNoteWithEditor(fileName)
 	}
 
-	if noteWasChanged(fileName) {
-		fmt.Println("Saving as " + fileName)
+	dat, err := ioutil.ReadFile(fileName)
+	check(err)
+	currentString := string(dat)
+
+	if noteWasChanged(currentString) {
+		title := createFileName(extractFileName(currentString), config)
+		fmt.Println("Saving as " + title)
+
+		if title != fileName {
+			err := os.Rename(fileName, title)
+			check(err)
+		}
+
 		config.Counter += 1
 		writeConfig(config)
 	} else {
@@ -77,20 +88,26 @@ func launchEditor(filename string) error {
 	return nil
 }
 
-func noteWasChanged(fileName string) bool {
-	dat, err := ioutil.ReadFile(fileName)
-	check(err)
-	currentString := string(dat)
-
-	return currentString != defaultTextString()
+func noteWasChanged(fileContents string) bool {
+	return fileContents != defaultTextString()
 }
 
-func createFileName(c Opts) string {
+func extractFileName(contents string) []string {
+	lines := strings.Split(contents, "\n")
+	title := lines[0]
+	return strings.Split(title[2:], " ")
+}
+
+func createFileNameFromArgs(c Opts) string {
 	title := os.Args[1:]
-	if len(title) == 0 {
+	return createFileName(title, c)
+}
+
+func createFileName(parts []string, c Opts) string {
+	if len(parts) == 0 {
 		return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION
 	} else {
-		return c.InboxPath + strings.Join(title, "-") + DEFAULT_EXTENSION
+		return c.InboxPath + strings.Join(parts, "-") + DEFAULT_EXTENSION
 	}
 }
 
