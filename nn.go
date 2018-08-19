@@ -9,6 +9,7 @@ import (
 	"os/exec"
 	"os/user"
 	"path/filepath"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -104,10 +105,13 @@ func createFileNameFromArgs(c Opts) string {
 }
 
 func createFileName(parts []string, c Opts) string {
+	punctuationRegex := regexp.MustCompile(":punct:")
 	if len(parts) == 0 {
 		return c.InboxPath + strconv.Itoa(c.Counter) + DEFAULT_EXTENSION
 	} else {
-		return c.InboxPath + strings.Join(parts, "-") + DEFAULT_EXTENSION
+		joinedTitle := strings.Join(parts, "-")
+		titleWithoutPunctuation := punctuationRegex.ReplaceAll([]byte(joinedTitle), []byte(""))
+		return c.InboxPath + string(titleWithoutPunctuation) + DEFAULT_EXTENSION
 	}
 }
 
