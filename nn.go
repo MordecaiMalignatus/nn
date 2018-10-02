@@ -96,7 +96,8 @@ func noteWasChanged(fileContents string) bool {
 func extractFileName(contents string) []string {
 	lines := strings.Split(contents, "\n")
 	title := lines[0]
-	return strings.Split(title[2:], " ")
+	cleanedTitle := strings.Trim(title, " \n\t.,-")
+	return strings.Split(cleanedTitle[2:], " ")
 }
 
 func createFileNameFromArgs(c Opts) string {
