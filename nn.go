@@ -97,6 +97,7 @@ func extractFileName(contents string) []string {
 	lines := strings.Split(contents, "\n")
 	title := lines[0]
 	cleanedTitle := strings.Trim(title, " \n\t.,-")
+	cleanedTitle = strings.Replace(cleanedTitle, "/", " ", -1)
 	return strings.Split(cleanedTitle[2:], " ")
 }
 
