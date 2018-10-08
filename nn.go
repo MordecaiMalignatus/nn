@@ -119,9 +119,9 @@ func createFileName(parts []string, c Opts) string {
 func defaultTextString() string {
 	title := os.Args[1:]
 	if len(title) == 0 {
-		return fmt.Sprintf("# \n _(%s)_", getDate())
+		return fmt.Sprintf("# \n_(%s)_", getDate())
 	} else {
-		return fmt.Sprintf("# %s\n _(%s)_", strings.Join(title, " "), getDate())
+		return fmt.Sprintf("# %s\n_(%s)_", strings.Join(title, " "), getDate())
 	}
 }
 
